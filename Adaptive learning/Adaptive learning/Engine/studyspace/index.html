@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Space — AI-Powered Learning with Gemini</title>
+  <meta name="description" content="Study Space is an adaptive AI learning platform powered by Gemini. Ask questions, get web-grounded answers, and master any subject with your intelligent study companion." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Favicon (inline SVG) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>" />
+</head>
+<body>
+
+  <!-- Onboarding Overlay Container (Disabled) -->
+  <div id="landing-page" style="display: none;">
+    <h1>Your AI-Powered Study Companion</h1>
+    <button>Start Studying Now</button>
+  </div>
+
+<!-- ═══════════════════════════════════════════════
+     ANIMATED BACKGROUND MESH (shared)
+════════════════════════════════════════════════ -->
+<div class="bg-mesh" aria-hidden="true">
+  <div class="mesh-blob mesh-blob-1"></div>
+  <div class="mesh-blob mesh-blob-2"></div>
+  <div class="mesh-blob mesh-blob-3"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     APP SHELL (Workspace)
+════════════════════════════════════════════════ -->
+<div id="app-shell" aria-label="Study Workspace">
+
+  <!-- ── Top Header ── -->
+  <header class="app-header" role="banner">
+    <div class="logo-wrap">
+      <div class="logo-icon" aria-hidden="true">✦</div>
+      <span class="logo-text">Study<span>Space</span></span>
+    </div>
+    <div class="header-divider" aria-hidden="true"></div>
+    <span class="header-session-name" id="session-name" title="Click to rename">New Study Session</span>
+
+    <div class="header-actions">
+      <!-- Exit Button -->
+      <button class="btn btn-secondary btn-sm" id="exit-dashboard-btn" style="background: rgba(248, 81, 73, 0.15); border: 1px solid rgba(248, 81, 73, 0.3); color: #ff7b72; font-weight: 500;">
+        Exit to Dashboard
+      </button>
+      
+      <!-- Google Grounding Toggle Button -->
+      <button
+        id="web-grounding-btn"
+        class="grounding-toggle-btn grounding-on"
+        aria-label="Toggle Google Search Grounding"
+        aria-pressed="true"
+        title="Click to toggle Google Search Grounding"
+      >
+        <span class="grounding-toggle-dot"></span>
+        <span class="grounding-toggle-icon">🌐</span>
+        <span class="grounding-toggle-label">Web Grounding ON</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" id="sidebar-toggle-btn" aria-label="Toggle sources sidebar" title="Toggle sidebar">
+        ☰
+      </button>
+      <button class="btn btn-ghost btn-sm" id="clear-chat-btn" aria-label="Clear chat" title="Clear chat">
+        🗑️
+      </button>
+      <button class="btn btn-gem btn-sm" id="new-session-btn" aria-label="Start new session">
+        ✦ New Session
+      </button>
+      <button class="btn btn-ghost btn-sm" id="notes-panel-toggle-btn" aria-label="Toggle notes panel" title="Toggle notes">
+        📝
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Body Layout ── -->
+  <div class="app-body">
+
+    <!-- ── Left Sidebar ── -->
+    <aside class="sidebar" id="sidebar" aria-label="Sources and doubt bot">
+      <!-- Knowledge Sources -->
+      <div class="sidebar-header" id="knowledge-sources-container">
+        <div class="sidebar-section-title">Knowledge Sources</div>
+        <div class="source-list" id="source-list" role="list" aria-label="Connected sources">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- ── Doubt Clarification Bot ── -->
+      <div class="sidebar-doubt-zone" aria-label="Doubt Clarification Bot">
+        <div class="doubt-zone-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="doubt-zone-icon">🤔</span>
+            <div>
+              <div class="doubt-zone-title">Doubt Clarification Bot</div>
+              <div class="doubt-zone-subtitle">Ask quick topic doubts here</div>
+            </div>
+          </div>
+          <button id="clear-doubt-btn" class="btn btn-ghost btn-sm" style="padding: 4px; font-size: 1.1rem; height: auto;" aria-label="Clear doubt chat" title="Clear chat">🧹</button>
+        </div>
+
+        <!-- Messages feed -->
+        <div class="doubt-messages" id="doubt-messages" role="log" aria-live="polite" aria-label="Doubt bot conversation">
+          <div class="doubt-empty-state">
+            <div class="doubt-empty-icon">💡</div>
+            <div class="doubt-empty-text">Any doubt about the topic? Ask here — I'll answer instantly without cluttering your main study feed.</div>
+          </div>
+        </div>
+
+        <!-- Input row -->
+        <div class="doubt-input-row">
+          <textarea
+            id="doubt-textarea"
+            class="doubt-textarea"
+            placeholder="Ask a quick doubt…"
+            rows="1"
+            aria-label="Type your doubt"
+          ></textarea>
+          <button id="doubt-send-btn" class="doubt-send-btn" aria-label="Send doubt" title="Send (Enter)">➤</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Chat Area ── -->
+    <section class="chat-area" aria-label="Chat with StudyBot" role="main">
+
+      <!-- Welcome State -->
+      <div class="chat-welcome" id="chat-welcome" aria-label="Welcome screen">
+        <div class="welcome-gem-icon" aria-hidden="true">✦</div>
+        <h2 class="welcome-title">Ask me anything</h2>
+        <p class="welcome-subtitle">
+          I'm StudyBot — your AI-powered study companion. I'll search the web and give you detailed, sourced answers to clear all your doubts.
+        </p>
+        <div class="suggested-questions" role="list" aria-label="Suggested questions">
+          <button class="suggestion-chip" data-query="Explain quantum entanglement in simple terms" role="listitem">
+            ⚛️ Explain quantum entanglement
+          </button>
+          <button class="suggestion-chip" data-query="What is the difference between machine learning and deep learning?" role="listitem">
+            🤖 ML vs Deep Learning
+          </button>
+          <button class="suggestion-chip" data-query="How does photosynthesis work step by step?" role="listitem">
+            🌱 How photosynthesis works
+          </button>
+          <button class="suggestion-chip" data-query="Explain the French Revolution and its causes" role="listitem">
+            🏛️ French Revolution causes
+          </button>
+          <button class="suggestion-chip" data-query="What is the time complexity of quicksort?" role="listitem">
+            📊 Quicksort complexity
+          </button>
+          <button class="suggestion-chip" data-query="Explain DNA replication with steps" role="listitem">
+            🧬 DNA replication steps
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Conversation">
+      </div>
+
+      <!-- Input Area -->
+      <div class="chat-input-area" role="form" aria-label="Message input">
+        <div class="input-wrapper">
+          <div class="chat-input-box">
+            <textarea
+              id="chat-textarea"
+              class="chat-textarea"
+              placeholder="Ask any question — I'll search the web for the best answer…"
+              rows="1"
+              aria-label="Type your question"
+              aria-multiline="true"
+            ></textarea>
+            <div class="input-actions">
+              <button class="send-btn" id="send-btn" aria-label="Send message" title="Send (Enter)">
+                ➤
+              </button>
+            </div>
+          </div>
+          <div class="input-hint">
+            <span class="hint-text">Press <kbd style="background:rgba(255,255,255,0.06);border:1px solid var(--border-subtle);padding:1px 5px;border-radius:3px;font-size:0.72rem;">Enter</kbd> to send · <kbd style="background:rgba(255,255,255,0.06);border:1px solid var(--border-subtle);padding:1px 5px;border-radius:3px;font-size:0.72rem;">Shift+Enter</kbd> for new line</span>
+            <span id="grounding-hint-badge" class="grounding-badge grounding-badge-on" title="Google Search Grounding status">
+              <span class="dot"></span>
+              <span id="grounding-hint-label">Google Grounding ON</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── Right Notes Panel ── -->
+    <aside class="notes-panel" id="notes-panel" aria-label="Personal notes and assessment">
+      <div class="notes-header">
+        <div class="notes-title">
+          <span>📝</span> My Notes
+        </div>
+        <span class="tag tag-blue" style="font-size:0.68rem;" id="notes-count">0 notes</span>
+      </div>
+
+      <!-- Test Generate Button — moved here from sidebar -->
+      <div class="notes-test-zone">
+        <button
+          id="test-generate-btn"
+          class="btn-test-generate"
+          aria-label="Generate a quiz, MCQ, or Q&A based on your study session"
+          title="Generate an instant assessment from your study topic"
+        >
+          <span class="test-btn-icon">🧪</span>
+          <span class="test-btn-label">Generate Assessment</span>
+          <span class="test-btn-badge">AI</span>
+        </button>
+      </div>
+
+      <div class="notes-content" id="notes-list" role="list" aria-label="Saved notes">
+        <div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <div class="empty-text">No notes yet.<br />Jot down key ideas!</div>
+        </div>
+      </div>
+
+      <div class="notes-input-area">
+        <textarea
+          id="note-textarea"
+          class="note-textarea"
+          placeholder="Jot down a note… (Ctrl+Enter to save)"
+          aria-label="Write a note"
+        ></textarea>
+        <button class="btn btn-primary btn-sm" id="add-note-btn" style="width:100%;margin-top:8px;" aria-label="Save note">
+          + Save Note
+        </button>
+      </div>
+    </aside>
+
+  </div><!-- end app-body -->
+</div><!-- end app-shell -->
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container" aria-live="assertive" role="status"></div>
+
+<!-- ═══════════════════════════════════════════════
+     ASSESSMENT MODAL OVERLAY
+════════════════════════════════════════════════ -->
+<div id="assessment-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Assessment" aria-labelledby="assessment-modal-title">
+  <div class="assessment-modal-box">
+    <!-- Modal Header -->
+    <div class="assessment-modal-header">
+      <div class="assessment-modal-title-row">
+        <span class="assessment-modal-icon">🧪</span>
+        <div>
+          <div id="assessment-modal-title" class="assessment-modal-title">Study Assessment</div>
+          <div id="assessment-modal-subtitle" class="assessment-modal-subtitle">Answer the questions below</div>
+        </div>
+      </div>
+      <button id="assessment-close-btn" class="assessment-close-btn" aria-label="Close assessment">✕</button>
+    </div>
+
+    <!-- Modal Body — dynamically populated -->
+    <div id="assessment-body" class="assessment-modal-body">
+      <!-- JS renders MCQ / QUIZ / QA here -->
+      <div class="assessment-loading">
+        <div class="assessment-loading-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+        <span>Generating your assessment…</span>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="assessment-modal-footer">
+      <span id="assessment-type-tag" class="assessment-type-tag"></span>
+      <button id="assessment-retry-btn" class="btn btn-secondary btn-sm">🔄 New Assessment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════ -->
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

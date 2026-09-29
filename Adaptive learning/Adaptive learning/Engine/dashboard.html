@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroLog | Analysis Dashboard</title>
+    <meta name="description" content="Memory decay analysis — visualise your retention curves and get personalised review schedules.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="background-elements">
+        <div class="blob top-left"></div>
+        <div class="blob bottom-right"></div>
+    </div>
+
+    <!-- Top nav -->
+    <nav class="top-nav">
+        <div class="nav-brand">NeuroLog · Analysis Dashboard</div>
+        <div class="nav-right-container">
+            <button id="sign-out-btn" class="nav-back" style="background: none; border: none; cursor: pointer; color: var(--text-2); font-family: inherit; font-size: inherit; display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M16 17l5-5-5-5M21 12H9M9 3H4a2 2 0 00-2 2v14a2 2 0 002 2h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Sign Out
+            </button>
+        </div>
+    </nav>
+
+    <div class="dash-container">
+
+        <!-- Loading state -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p>Running Memory Decay Engine…</p>
+        </div>
+
+        <!-- ── Current Session Card ── -->
+        <section class="section" id="session-section">
+            <div class="session-grid" id="session-grid">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- ── Decay Curve Chart ── -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Memory Decay Curve</h2>
+                <div class="chart-legend" id="chart-legend"></div>
+            </div>
+            <div class="chart-wrap glass-card">
+                <canvas id="decayChart"></canvas>
+            </div>
+            <div class="chart-annotation" id="threshold-label">
+                <span class="threshold-line-label">60% Review Threshold</span>
+            </div>
+        </section>
+
+        <!-- ── Weekly Review Calendar ── -->
+        <section class="section" id="weekly-calendar-section">
+            <div class="section-header">
+                <h2 class="section-title">Weekly Review Schedule</h2>
+                <span class="schedule-subtitle">Review deadlines mapped across the current week</span>
+            </div>
+            <div id="calendar-week-row">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- ── Per-topic Analysis Row ── -->
+        <section class="section">
+            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="section-title">All Topics — Decay Analysis</h2>
+                <button id="add-topic-btn" class="study-btn" style="width: auto; padding: 8px 16px; margin: 0;">Add New Topic</button>
+            </div>
+            <div class="topics-grid" id="topics-grid">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- ── Review Schedule ── -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Review Schedule</h2>
+                <span class="schedule-subtitle">Topics approaching their adaptive review thresholds</span>
+            </div>
+            <div class="schedule-list" id="schedule-list">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- ── Urgent Review Alert ── -->
+        <div class="urgent-alert hidden" id="urgent-alert">
+            <div class="urgent-icon">!</div>
+            <div class="urgent-text">
+                <strong>Review Required Now</strong>
+                <span id="urgent-topics"></span>
+            </div>
+            <button class="dismiss-btn" id="dismiss-alert" title="Dismiss alert">✕</button>
+        </div>
+
+    </div>
+
+    <!-- Add New Topic Modal -->
+    <div id="add-topic-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <h2>Add New Topic</h2>
+            <form id="add-topic-form">
+                <div class="form-group">
+                    <label for="new-subject">Subject</label>
+                    <input type="text" id="new-subject" required placeholder="e.g. Computer Science">
+                </div>
+                <div class="form-group">
+                    <label for="new-topic">Topic</label>
+                    <input type="text" id="new-topic" required placeholder="e.g. Data Structures">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="dismiss-btn" id="cancel-add-topic" style="position: static; color: inherit; background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 6px; width: auto; height: auto;">Cancel</button>
+                    <button type="submit" class="study-btn" style="margin: 0; padding: 8px 16px; width: auto;">Add Topic</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>
